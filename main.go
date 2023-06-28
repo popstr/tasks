@@ -18,9 +18,9 @@ type Task struct {
 }
 
 var tasks = []Task{
-	{ID: 1, Name: "Task 1"},
-	{ID: 2, Name: "Task 2"},
-	{ID: 3, Name: "Task 3"},
+	{ID: 1, Name: "Task 1", Category: "Category 1", DueDate: "2023-01-01"},
+	{ID: 2, Name: "Task 2", Category: "Category 2", DueDate: "2023-03-15"},
+	{ID: 3, Name: "Task 3", Category: "Category 3", DueDate: "2023-06-30"},
 }
 
 func main() {
