@@ -25,6 +25,7 @@ var tasks = []Task{
 func main() {
 	e := echo.New()
 
+	e.GET("/", getIntro)
 	e.GET("/tasks", getTasks)
 	e.GET("/tasks/:id", getTaskByID)
 	e.POST("/tasks", createTask)
@@ -119,4 +120,8 @@ func validateDueDate(date string) bool {
 	regex := `^\d{4}-\d{2}-\d{2}$`
 	match, _ := regexp.MatchString(regex, date)
 	return match
+}
+
+func getIntro(c echo.Context) error {
+	return c.String(http.StatusOK, "Welcome to the task manager!")
 }
