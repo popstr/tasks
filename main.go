@@ -6,10 +6,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Task struct {
@@ -30,7 +30,8 @@ type TaskUpdate struct {
 var tasks = []Task{
 	{ID: 1, Name: "Task 1", Category: "Category 1", DueDate: "2023-01-01", Status: Todo},
 	{ID: 2, Name: "Task 2", Category: "Category 2", DueDate: "2023-03-15", Status: Doing},
-	{ID: 3, Name: "Task 3", Category: "Category 3", DueDate: "2023-06-30", Status: Done},
+	{ID: 3, Name: "Task 3A", Category: "Category 3", DueDate: "2023-06-30", Status: Doing},
+	{ID: 3, Name: "Task 3B", Category: "Category 3", DueDate: "2024-01-31", Status: Done},
 }
 
 func main() {
@@ -137,7 +138,7 @@ func createTask(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid request payload"})
 	}
 
-	if !validateDueDate(task.DueDate) {
+	if !isValidDate(task.DueDate) {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid due date (format: YYYY-MM-DD)"})
 	}
 
@@ -158,7 +159,7 @@ func updateTask(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid request payload"})
 	}
 
-	if taskUpdate.DueDate != nil && !validateDueDate(*taskUpdate.DueDate) {
+	if taskUpdate.DueDate != nil && !isValidDate(*taskUpdate.DueDate) {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid due date (format: YYYY-MM-DD)"})
 	}
 
@@ -196,10 +197,10 @@ func deleteTask(c echo.Context) error {
 	return c.JSON(http.StatusNotFound, echo.Map{"error": "Task not found"})
 }
 
-func validateDueDate(date string) bool {
-	regex := `^\d{4}-\d{2}-\d{2}$`
-	match, _ := regexp.MatchString(regex, date)
-	return match
+func isValidDate(dateString string) bool {
+	layout := "2006-01-02"
+	_, err := time.Parse(layout, dateString)
+	return err == nil
 }
 
 func getIntro(c echo.Context) error {
