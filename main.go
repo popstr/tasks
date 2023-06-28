@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
+	"strings"
 )
 
 type Task struct {
@@ -51,7 +53,49 @@ func main() {
 
 func getTasks(c echo.Context) error {
 	category := c.QueryParam("category")
-	return c.JSON(http.StatusOK, filterTasks(category))
+	filteredTasks := filterTasks(category)
+	sortBy := c.QueryParam("sortBy")
+	sortDir := c.QueryParam("sortDir")
+	sortedFilteredTasks := sortTasks(filteredTasks, sortBy, sortDir)
+	return c.JSON(http.StatusOK, sortedFilteredTasks)
+}
+
+func sortTasks(taskList []Task, by string, dir string) []Task {
+	fmt.Printf("Sorting tasks by %s, direction %s\n", by, dir)
+	dir = strings.ToLower(dir)
+	t := make([]Task, len(taskList))
+	copy(t, taskList)
+	sort.Slice(t, func(i, j int) bool {
+		switch by {
+		case "id":
+			if dir == "desc" {
+				return taskList[i].ID > taskList[j].ID
+			}
+			return taskList[i].ID < taskList[j].ID
+		case "name":
+			if dir == "desc" {
+				return taskList[i].Name > taskList[j].Name
+			}
+			return taskList[i].Name < taskList[j].Name
+		case "category":
+			if dir == "desc" {
+				return taskList[i].Category > taskList[j].Category
+			}
+			return taskList[i].Category < taskList[j].Category
+		case "dueDate":
+			if dir == "desc" {
+				return taskList[i].DueDate > taskList[j].DueDate
+			}
+			return taskList[i].DueDate < taskList[j].DueDate
+		default:
+			// Sort by id asc by default
+			if dir == "desc" {
+				return taskList[i].ID > taskList[j].ID
+			}
+			return taskList[i].ID < taskList[j].ID
+		}
+	})
+	return t
 }
 
 func filterTasks(category string) []Task {
