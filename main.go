@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 )
@@ -32,7 +33,11 @@ func main() {
 	e.PUT("/tasks/:id", updateTask)
 	e.DELETE("/tasks/:id", deleteTask)
 
-	err := e.Start(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	err := e.Start(fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatal(err)
 	}
