@@ -44,7 +44,19 @@ func main() {
 }
 
 func getTasks(c echo.Context) error {
-	return c.JSON(http.StatusOK, tasks)
+	category := c.QueryParam("category")
+	return c.JSON(http.StatusOK, filterTasks(category))
+}
+
+func filterTasks(category string) []Task {
+	result := make([]Task, 0)
+	for _, task := range tasks {
+		if category != "" && task.Category != category {
+			continue
+		}
+		result = append(result, task)
+	}
+	return result
 }
 
 func getTaskByID(c echo.Context) error {
