@@ -13,22 +13,24 @@ import (
 )
 
 type Task struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Category string `json:"category"`
-	DueDate  string `json:"dueDate"`
+	ID       int        `json:"id"`
+	Name     string     `json:"name"`
+	Category string     `json:"category"`
+	DueDate  string     `json:"dueDate"`
+	Status   TaskStatus `json:"status"`
 }
 
 type TaskUpdate struct {
-	Name     *string `json:"name"`
-	Category *string `json:"category"`
-	DueDate  *string `json:"dueDate"`
+	Name     *string     `json:"name"`
+	Category *string     `json:"category"`
+	DueDate  *string     `json:"dueDate"`
+	Status   *TaskStatus `json:"status"`
 }
 
 var tasks = []Task{
-	{ID: 1, Name: "Task 1", Category: "Category 1", DueDate: "2023-01-01"},
-	{ID: 2, Name: "Task 2", Category: "Category 2", DueDate: "2023-03-15"},
-	{ID: 3, Name: "Task 3", Category: "Category 3", DueDate: "2023-06-30"},
+	{ID: 1, Name: "Task 1", Category: "Category 1", DueDate: "2023-01-01", Status: Todo},
+	{ID: 2, Name: "Task 2", Category: "Category 2", DueDate: "2023-03-15", Status: Doing},
+	{ID: 3, Name: "Task 3", Category: "Category 3", DueDate: "2023-06-30", Status: Done},
 }
 
 func main() {
@@ -83,6 +85,11 @@ func sortTasks(taskList []Task, by string, dir string) []Task {
 			}
 			return taskList[i].Category < taskList[j].Category
 		case "dueDate":
+			if dir == "desc" {
+				return taskList[i].DueDate > taskList[j].DueDate
+			}
+			return taskList[i].DueDate < taskList[j].DueDate
+		case "status":
 			if dir == "desc" {
 				return taskList[i].DueDate > taskList[j].DueDate
 			}
