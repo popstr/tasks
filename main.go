@@ -17,6 +17,12 @@ type Task struct {
 	DueDate  string `json:"dueDate"`
 }
 
+type TaskUpdate struct {
+	Name     *string `json:"name"`
+	Category *string `json:"category"`
+	DueDate  *string `json:"dueDate"`
+}
+
 var tasks = []Task{
 	{ID: 1, Name: "Task 1", Category: "Category 1", DueDate: "2023-01-01"},
 	{ID: 2, Name: "Task 2", Category: "Category 2", DueDate: "2023-03-15"},
@@ -96,20 +102,26 @@ func updateTask(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid task ID"})
 	}
 
-	var updatedTask Task
-	if err := c.Bind(&updatedTask); err != nil {
+	var taskUpdate TaskUpdate
+	if err := c.Bind(&taskUpdate); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid request payload"})
 	}
 
-	if !validateDueDate(updatedTask.DueDate) {
+	if taskUpdate.DueDate != nil && !validateDueDate(*taskUpdate.DueDate) {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid due date (format: YYYY-MM-DD)"})
 	}
 
 	for i := range tasks {
 		if tasks[i].ID == id {
-			tasks[i].Name = updatedTask.Name
-			tasks[i].Category = updatedTask.Category
-			tasks[i].DueDate = updatedTask.DueDate
+			if taskUpdate.Name != nil {
+				tasks[i].Name = *taskUpdate.Name
+			}
+			if taskUpdate.Category != nil {
+				tasks[i].Category = *taskUpdate.Category
+			}
+			if taskUpdate.DueDate != nil {
+				tasks[i].DueDate = *taskUpdate.DueDate
+			}
 			return c.JSON(http.StatusOK, tasks[i])
 		}
 	}
