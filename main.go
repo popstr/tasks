@@ -1,0 +1,122 @@
+package main
+
+import (
+	"fmt"
+	"github.com/labstack/echo/v4"
+	"log"
+	"net/http"
+	"regexp"
+	"strconv"
+)
+
+type Task struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Category string `json:"category"`
+	DueDate  string `json:"dueDate"`
+}
+
+var tasks = []Task{
+	{ID: 1, Name: "Task 1"},
+	{ID: 2, Name: "Task 2"},
+	{ID: 3, Name: "Task 3"},
+}
+
+func main() {
+	e := echo.New()
+
+	e.GET("/tasks", getTasks)
+	e.GET("/tasks/:id", getTaskByID)
+	e.POST("/tasks", createTask)
+	e.PUT("/tasks/:id", updateTask)
+	e.DELETE("/tasks/:id", deleteTask)
+
+	err := e.Start(":8080")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func getTasks(c echo.Context) error {
+	return c.JSON(http.StatusOK, tasks)
+}
+
+func getTaskByID(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid task ID"})
+	}
+
+	for _, task := range tasks {
+		if task.ID == id {
+			return c.JSON(http.StatusOK, task)
+		}
+	}
+
+	return c.JSON(http.StatusNotFound, echo.Map{"error": "Task not found"})
+}
+
+func createTask(c echo.Context) error {
+	var task Task
+	if err := c.Bind(&task); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid request payload"})
+	}
+
+	if !validateDueDate(task.DueDate) {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid due date (format: YYYY-MM-DD)"})
+	}
+
+	task.ID = len(tasks) + 1
+	tasks = append(tasks, task)
+
+	return c.JSON(http.StatusCreated, task)
+}
+
+func updateTask(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid task ID"})
+	}
+
+	var updatedTask Task
+	if err := c.Bind(&updatedTask); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid request payload"})
+	}
+
+	if !validateDueDate(updatedTask.DueDate) {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid due date (format: YYYY-MM-DD)"})
+	}
+
+	for i := range tasks {
+		if tasks[i].ID == id {
+			tasks[i].Name = updatedTask.Name
+			tasks[i].Category = updatedTask.Category
+			tasks[i].DueDate = updatedTask.DueDate
+			return c.JSON(http.StatusOK, tasks[i])
+		}
+	}
+
+	return c.JSON(http.StatusNotFound, echo.Map{"error": "Task not found"})
+}
+
+func deleteTask(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid task ID"})
+	}
+
+	for i := range tasks {
+		if tasks[i].ID == id {
+			tasks = append(tasks[:i], tasks[i+1:]...)
+			return c.JSON(http.StatusOK, echo.Map{"message": fmt.Sprintf("Task %d deleted", id)})
+		}
+	}
+
+	return c.JSON(http.StatusNotFound, echo.Map{"error": "Task not found"})
+}
+
+func validateDueDate(date string) bool {
+	regex := `^\d{4}-\d{2}-\d{2}$`
+	match, _ := regexp.MatchString(regex, date)
+	return match
+}
