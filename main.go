@@ -120,7 +120,7 @@ func filterTasks(category string) []Task {
 func getTaskByID(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid task ID"})
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": fmt.Sprintf("Invalid task ID: %s", err)})
 	}
 
 	for _, task := range tasks {
@@ -135,7 +135,7 @@ func getTaskByID(c echo.Context) error {
 func createTask(c echo.Context) error {
 	var task Task
 	if err := c.Bind(&task); err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid request payload"})
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": fmt.Sprintf("Invalid request payload: %s", err)})
 	}
 
 	if !isValidDate(task.DueDate) {
@@ -151,12 +151,12 @@ func createTask(c echo.Context) error {
 func updateTask(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid task ID"})
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": fmt.Sprintf("Invalid task ID: %s", err)})
 	}
 
 	var taskUpdate TaskUpdate
 	if err := c.Bind(&taskUpdate); err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid request payload"})
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": fmt.Sprintf("Invalid request payload: %s", err)})
 	}
 
 	if taskUpdate.DueDate != nil && !isValidDate(*taskUpdate.DueDate) {
@@ -184,7 +184,7 @@ func updateTask(c echo.Context) error {
 func deleteTask(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid task ID"})
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": fmt.Sprintf("Invalid task ID: %s", err)})
 	}
 
 	for i := range tasks {
