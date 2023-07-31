@@ -177,6 +177,9 @@ func updateTask(c echo.Context) error {
 			if taskUpdate.DueDate != nil {
 				tasks[i].DueDate = *taskUpdate.DueDate
 			}
+			if taskUpdate.Status != nil {
+				tasks[i].Status = *taskUpdate.Status
+			}
 			return c.JSON(http.StatusOK, tasks[i])
 		}
 	}
