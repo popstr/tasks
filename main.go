@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"log"
 	"net/http"
 	"os"
@@ -36,6 +37,8 @@ var tasks = []Task{
 
 func main() {
 	e := echo.New()
+	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
 
 	e.GET("/", getIntro)
 	e.GET("/tasks", getTasks)
