@@ -32,7 +32,7 @@ var tasks = []Task{
 	{ID: 1, Name: "Task 1", Category: "Category 1", DueDate: "2023-01-01", Status: Todo},
 	{ID: 2, Name: "Task 2", Category: "Category 2", DueDate: "2023-03-15", Status: Doing},
 	{ID: 3, Name: "Task 3A", Category: "Category 3", DueDate: "2023-06-30", Status: Doing},
-	{ID: 3, Name: "Task 3B", Category: "Category 3", DueDate: "2024-01-31", Status: Done},
+	{ID: 4, Name: "Task 3B", Category: "Category 3", DueDate: "2024-01-31", Status: Done},
 }
 
 func main() {
